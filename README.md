@@ -1,26 +1,74 @@
-# Getting Started with Create React App
+# DemoApp Project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a Node.js application that is built, tested, and deployed using Jenkins, Ansible, and Docker. Below are the details about the stack, steps, and commands to launch the application.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+- **Node.js**: JavaScript runtime for building the application.
+- **Ansible**: Configuration management tool used to automate application rebuilding and deployment.
+- **Docker**: Containerization platform to run the application in a containerized environment.
+- **GitHub Actions**: CI/CD tool for automating the build and deployment pipeline.
+- **Jenkins**: CI tool for running jobs such as build, tests, and analysis.
+- **SonarQube**: Code quality analysis tool.
 
-### `npm start`
+## Steps to Run the Application
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **Clone the Repository**:
+    ```bash
+    git clone https://github.com/siwar2/DemoApp.git
+    cd DemoApp
+    ```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-### `npm test`
+3. **Build the Application**:
+    ```bash
+    npm run build
+    ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. **Run the Application Locally with Docker**:
+    - **Build the Docker image**:
+      ```bash
+      docker build -t demoapp .
+      ```
 
-### `npm run build`
+    - **Run the Docker container**:
+      ```bash
+      docker run -d -p 3000:3000 demoapp
+      ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    - Access the app at `http://localhost:3000`.
 
+## Deployment Automation
+
+The application is automatically rebuilt and deployed whenever a pull request is merged into the `main` branch using **Ansible** and **GitHub Actions**.
+
+### GitHub Actions Workflow
+
+The workflow performs the following tasks:
+- **Build**: Builds the Node.js application.
+- **Run Ansible Playbook**: Rebuilds and restarts the application on the remote server using the Ansible playbook.
+- **Send Email Notification**: After a successful merge to the `main` branch, an email notification is sent.
+
+### Ansible Playbook
+
+The `rebuild.yml` playbook automates the following tasks:
+- Pulling the latest code from the GitHub repository.
+- Installing dependencies.
+- Rebuilding the application.
+- Restarting the application.
+
+### To trigger the rebuild:
+1. Merge your PR into the `main` branch.
+2. GitHub Actions will automatically trigger the workflow and rebuild the application.
+
+## Running Jenkins
+
+Jenkins is used for CI/CD in this project. Ensure the Jenkins server is set up and configured to run builds on each commit or pull request.
+
+## License
+
+This project is licensed under the MIT License.
