@@ -1,0 +1,49 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: |
+        npm install
+
+    - name: Build the application
+      run: |
+        npm run build
+
+    - name: Run Ansible Playbook for rebuild
+      uses: appleboy/ansible-playbook-action@v0.0.10
+      with:
+        playbook: 'rebuild.yml'
+        inventory: 'inventory.ini'
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+        ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
+        ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
+
+  send_email:
+    runs-on: ubuntu-latest
+    needs: rebuild  # Wait until the rebuild job finishes
+    steps:
+    - name: Send email notification
+      run: |
+        echo "Subject=App Rebuild Notification - Successfully Deployed" | sendmail ${{ secrets.EMAIL_RECIPIENT }}
+      env:
+        EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
